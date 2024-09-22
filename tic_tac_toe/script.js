@@ -14,8 +14,7 @@ const againButton = document.querySelector(".btn-play-again");
 const turnSpan = document.querySelector('.turn-span');
 const message = document.querySelector('.message');
 
-let drawFlag = false;
-//will check if its a draw so we wont be stuck in a loop
+
 
 document.querySelector('.play-against-buttons').addEventListener('click', function (e) {
     if (e.target.classList.contains('human-player')) {
@@ -78,11 +77,6 @@ function ticTacToe(e) {
 
 function markSquare(square) {
 
-// if (document.querySelector(".play-against-buttons").classList.contains("pc-chose")) {
-//     let pcPick=Math.ceil(Math.random()*9);
-//         console.log(pcPick);
-// }
-
     console.log(square.id);
     //can remove
     if (turnSpan.classList.contains('circle-turn')) {
@@ -96,31 +90,41 @@ function markSquare(square) {
             // new code
             if (document.querySelector(".play-against-buttons").classList.contains("pc-chose")) {
                 let pcPick = Math.ceil(Math.random() * 9);
-                console.log(pcPick);
+                console.log("x will be " + pcPick);
 
                 if (document.getElementById(`place-${pcPick}`).classList.contains("square-used")) {
-                    console.log("bingo");
-                    console.log(pcPick);
+                    console.log("taken");
 
-               
+
+
                 }
-                
 
-                while(document.getElementById(`place-${pcPick}`).classList.contains("square-used")){
 
-                    console.log(pcPick);
+                while (document.getElementById(`place-${pcPick}`).classList.contains("square-used")) {
                     pcPick = Math.ceil(Math.random() * 9);
-                }
-                document.getElementById(`place-${pcPick}`).innerHTML=`<img  class="x-pic" src="pictures/x.png" alt="x">`;
-                // its a start
+                    console.log("square was used .new x is " + pcPick);
 
+                }
+                document.getElementById(`place-${pcPick}`).innerHTML = `<img  class="x-pic" src="pictures/x.png" alt="x">`;
+                document.getElementById(`place-${pcPick}`).classList.add("square-used");
+                document.getElementById(`place-${pcPick}`).classList.add("x-used");
+
+                if (checkIfEnded("x")) {
+                    document.querySelector('.grid-container').removeEventListener('click', ticTacToe);
+                    againButton.style.display = "block";
+                }
+            }
+
+            else {
+                turnSpan.classList.toggle('circle-turn')
+                turnSpan.classList.toggle('x-turn')
+                turnSpan.innerHTML = `<img class="x-pic" src="pictures/x.png" alt="x">`;
             }
             //new code
+            //  turnSpan.classList.toggle('circle-turn')
+            //  turnSpan.classList.toggle('x-turn')
+            //  turnSpan.innerHTML = `<img class="x-pic" src="pictures/x.png" alt="x">`;
 
-            turnSpan.classList.toggle('circle-turn')
-            turnSpan.classList.toggle('x-turn')
-            turnSpan.innerHTML = `<img class="x-pic" src="pictures/x.png" alt="x">`;
-            // turnSpan.textContent = 'x';
 
 
         }
@@ -131,7 +135,7 @@ function markSquare(square) {
     }
     else if (turnSpan.classList.contains('x-turn')) {
         square.innerHTML = `<img class="x-pic" src="pictures/x.png" alt="x">`;
-       
+
         square.classList.add("x-used");
 
         if (!checkIfEnded("x")) {
@@ -153,18 +157,39 @@ function markSquare(square) {
 function checkIfEnded(turn) {
     switch (true) {
         case checkDiagnols(turn):
+            if (document.querySelector(".play-against-buttons").classList.contains("pc-chose")&& turn === "x") {
+                message.textContent = "pc wins!";
+                message.classList.remove("text-danger");
+                message.classList.add("text-success");
+                return true;
+            }
+           
             message.textContent = turn + " wins!";
             message.classList.remove("text-danger");
             message.classList.add("text-success");
             return true
+            
 
         case checkRows(turn):
+            if (document.querySelector(".play-against-buttons").classList.contains("pc-chose")&& turn === "x") {
+                message.textContent = "pc wins!";
+                message.classList.remove("text-danger");
+                message.classList.add("text-success");
+                return true;
+            }
             message.textContent = turn + " wins!";
             message.classList.remove("text-danger");
             message.classList.add("text-success");
             return true;
 
         case checkColumns(turn):
+            if (document.querySelector(".play-against-buttons").classList.contains("pc-chose")&& turn === "x") {
+                message.textContent = "pc wins!";
+                message.classList.remove("text-danger");
+                message.classList.add("text-success");
+                return true;
+               
+            }
             message.textContent = turn + " wins!";
             message.classList.remove("text-danger");
             message.classList.add("text-success");
@@ -175,9 +200,7 @@ function checkIfEnded(turn) {
             message.classList.remove("text-danger");
             message.classList.add("text-success");
 
-            //new code
-            drawFlag = true;
-            //new code
+
 
             return true;
 
@@ -244,9 +267,13 @@ function checkIfDraw() {
 
 
 againButton.addEventListener('click', function () {
-    drawFlag = false;
-    //new code
 
+   document.querySelector(".play-against-buttons").style.display = "block";
+   document.querySelector('.container').style.display = "none";
+   document.querySelector(".play-against-buttons").classList.remove("pc-chose")
+   document.querySelector(".play-against-buttons").classList.remove("human-chose")
+   
+   
     p1.className = "square"
     p1.innerHTML = "";
     p2.className = "square"
@@ -268,6 +295,6 @@ againButton.addEventListener('click', function () {
     document.querySelector('.grid-container').addEventListener('click', ticTacToe);
     againButton.style.display = "none";
     message.innerHTML = "";
-    turnSpan.innerHTML = "circle";
+    turnSpan.innerHTML = `<img  class="circle-pic" src="pictures/0.png" alt="circle">`;
     turnSpan.className = "turn-span circle-turn"
 });
