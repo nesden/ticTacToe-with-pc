@@ -9,25 +9,28 @@ const p8 = document.getElementById('place-8')
 const p9 = document.getElementById('place-9')
 
 
+const againstBtns = document.querySelector(".play-against-buttons")
 
 const againButton = document.querySelector(".btn-play-again");
 const turnSpan = document.querySelector('.turn-span');
 const message = document.querySelector('.message');
 
+let usedSquares = [];
+//will help us when giving the pc a valid turn
 
 
 document.querySelector('.play-against-buttons').addEventListener('click', function (e) {
     if (e.target.classList.contains('human-player')) {
 
         document.querySelector('.container').style.display = "block"
-        document.querySelector(".play-against-buttons").style.display = "none"
-        document.querySelector(".play-against-buttons").classList.add("human-chose")
+        againstBtns.style.display = "none"
+        againstBtns.classList.add("human-chose")
         //this will show if the x turn should be random
     }
     else if (e.target.classList.contains('pc-player')) {
         document.querySelector('.container').style.display = "block"
-        document.querySelector(".play-against-buttons").style.display = "none"
-        document.querySelector(".play-against-buttons").classList.add("pc-chose")
+        againstBtns.style.display = "none"
+        againstBtns.classList.add("pc-chose")
 
     }
 })
@@ -56,11 +59,7 @@ document.querySelector('.grid-container').addEventListener('click', ticTacToe)
 
 function ticTacToe(e) {
     //name change 
-    // if (document.querySelector(".play-against-buttons").classList.contains("pc-chose")&& turnSpan.classList.contains('circle-turn')) {
-    //     let pcPick=Math.ceil(Math.random()*9);
-    //     console.log(pcPick);
 
-    // }
     if (e.target.classList.contains("square-used")) {
         message.classList.add("text-danger");
         message.textContent = "spot already used!";
@@ -70,6 +69,10 @@ function ticTacToe(e) {
         e.target.classList.add("square-used");
         console.log("square pressed");
         //can remove
+        usedSquares.push(parseInt(e.target.id.replace("place-", "")));
+        //will make what we press in the used array as a number
+        console.log(usedSquares);
+        //new
         markSquare(e.target);
     }
 }
@@ -81,33 +84,38 @@ function markSquare(square) {
     //can remove
     if (turnSpan.classList.contains('circle-turn')) {
         // square.textContent = "circle";
-        square.innerHTML = `<img  class="circle-pic" src="pictures/0.png" alt="circle">`;
+        square.innerHTML = `<img  class="square-used circle-pic" src="pictures/0.png" alt="circle">`;
         //change to make a circle
         square.classList.add("circle-used");
 
         if (!checkIfEnded("circle")) {
 
             // new code
-            if (document.querySelector(".play-against-buttons").classList.contains("pc-chose")) {
-                let pcPick = Math.ceil(Math.random() * 9);
-                console.log("x will be " + pcPick);
-
-                if (document.getElementById(`place-${pcPick}`).classList.contains("square-used")) {
-                    console.log("taken");
+            if (againstBtns.classList.contains("pc-chose")) {
+                let pcPick = pcTurn();
 
 
+                //     let pcPick = Math.ceil(Math.random() * 9);
+                //     console.log("x will be " + pcPick);
 
-                }
+                //     if (document.getElementById(`place-${pcPick}`).classList.contains("square-used")) {
+                //         console.log("taken");
 
 
-                while (document.getElementById(`place-${pcPick}`).classList.contains("square-used")) {
-                    pcPick = Math.ceil(Math.random() * 9);
-                    console.log("square was used .new x is " + pcPick);
 
-                }
-                document.getElementById(`place-${pcPick}`).innerHTML = `<img  class="x-pic" src="pictures/x.png" alt="x">`;
+                //     }
+
+
+                //     while (document.getElementById(`place-${pcPick}`).classList.contains("square-used")) {
+                //         pcPick = Math.ceil(Math.random() * 9);
+                //         console.log("square was used .new x is " + pcPick);
+
+                //     }
+
+                document.getElementById(`place-${pcPick}`).innerHTML = `<img  class="square-used x-pic" src="pictures/x.png" alt="x">`;
                 document.getElementById(`place-${pcPick}`).classList.add("square-used");
                 document.getElementById(`place-${pcPick}`).classList.add("x-used");
+                //pcAction was pcPick
 
                 if (checkIfEnded("x")) {
                     document.querySelector('.grid-container').removeEventListener('click', ticTacToe);
@@ -118,12 +126,14 @@ function markSquare(square) {
             else {
                 turnSpan.classList.toggle('circle-turn')
                 turnSpan.classList.toggle('x-turn')
-                turnSpan.innerHTML = `<img class="x-pic" src="pictures/x.png" alt="x">`;
+                turnSpan.innerHTML = `<img class="square-used x-pic" src="pictures/x.png" alt="x">`;
             }
+
             //new code
+
             //  turnSpan.classList.toggle('circle-turn')
             //  turnSpan.classList.toggle('x-turn')
-            //  turnSpan.innerHTML = `<img class="x-pic" src="pictures/x.png" alt="x">`;
+            //  turnSpan.innerHTML = `<img class="square-used x-pic" src="pictures/x.png" alt="x">`;
 
 
 
@@ -134,14 +144,14 @@ function markSquare(square) {
         }
     }
     else if (turnSpan.classList.contains('x-turn')) {
-        square.innerHTML = `<img class="x-pic" src="pictures/x.png" alt="x">`;
+        square.innerHTML = `<img class="square-used x-pic" src="pictures/x.png" alt="x">`;
 
         square.classList.add("x-used");
 
         if (!checkIfEnded("x")) {
             turnSpan.classList.toggle('circle-turn')
             turnSpan.classList.toggle('x-turn')
-            turnSpan.innerHTML = `<img class="circle-pic" src="pictures/0.png" alt="circle">`;
+            turnSpan.innerHTML = `<img class="square-used circle-pic" src="pictures/0.png" alt="circle">`;
             // turnSpan.textContent = 'circle';
 
 
@@ -154,24 +164,41 @@ function markSquare(square) {
     }
 }
 
+function pcTurn() {
+
+    const freeSquares = [];
+    for (let i = 1; i <= 9; i++) {
+        if (!usedSquares.includes(i)) {
+            freeSquares.push(i)
+        }
+        //will create an array of the free squares
+    }
+    const pcPick = Math.floor(Math.random() * freeSquares.length);
+    // console.log(freeSquares[pcPick]);
+    console.log("pc will press"+ freeSquares[pcPick]);
+    usedSquares.push(freeSquares[pcPick])
+    return freeSquares[pcPick]
+}
+//new and weird
+
 function checkIfEnded(turn) {
     switch (true) {
         case checkDiagnols(turn):
-            if (document.querySelector(".play-against-buttons").classList.contains("pc-chose")&& turn === "x") {
+            if (againstBtns.classList.contains("pc-chose") && turn === "x") {
                 message.textContent = "pc wins!";
                 message.classList.remove("text-danger");
                 message.classList.add("text-success");
                 return true;
             }
-           
+
             message.textContent = turn + " wins!";
             message.classList.remove("text-danger");
             message.classList.add("text-success");
             return true
-            
+
 
         case checkRows(turn):
-            if (document.querySelector(".play-against-buttons").classList.contains("pc-chose")&& turn === "x") {
+            if (againstBtns.classList.contains("pc-chose") && turn === "x") {
                 message.textContent = "pc wins!";
                 message.classList.remove("text-danger");
                 message.classList.add("text-success");
@@ -183,12 +210,12 @@ function checkIfEnded(turn) {
             return true;
 
         case checkColumns(turn):
-            if (document.querySelector(".play-against-buttons").classList.contains("pc-chose")&& turn === "x") {
+            if (againstBtns.classList.contains("pc-chose") && turn === "x") {
                 message.textContent = "pc wins!";
                 message.classList.remove("text-danger");
                 message.classList.add("text-success");
                 return true;
-               
+
             }
             message.textContent = turn + " wins!";
             message.classList.remove("text-danger");
@@ -268,12 +295,12 @@ function checkIfDraw() {
 
 againButton.addEventListener('click', function () {
 
-   document.querySelector(".play-against-buttons").style.display = "block";
-   document.querySelector('.container').style.display = "none";
-   document.querySelector(".play-against-buttons").classList.remove("pc-chose")
-   document.querySelector(".play-against-buttons").classList.remove("human-chose")
-   
-   
+    againstBtns.style.display = "block";
+    document.querySelector('.container').style.display = "none";
+    againstBtns.classList.remove("pc-chose")
+    againstBtns.classList.remove("human-chose")
+
+
     p1.className = "square"
     p1.innerHTML = "";
     p2.className = "square"
@@ -292,9 +319,12 @@ againButton.addEventListener('click', function () {
     p8.innerHTML = "";
     p9.className = "square"
     p9.innerHTML = "";
+
+    usedSquares = []
+
     document.querySelector('.grid-container').addEventListener('click', ticTacToe);
     againButton.style.display = "none";
     message.innerHTML = "";
-    turnSpan.innerHTML = `<img  class="circle-pic" src="pictures/0.png" alt="circle">`;
+    turnSpan.innerHTML = `<img  class="square-used circle-pic" src="pictures/0.png" alt="circle">`;
     turnSpan.className = "turn-span circle-turn"
 });
